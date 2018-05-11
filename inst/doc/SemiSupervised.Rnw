@@ -1,0 +1,1116 @@
+% \VignetteIndexEntry{ A Short Introduction to the SemiSupervised Package}
+% \VignetteDepends{SemiSupervised}
+% \VignettePackage{SemiSupervised}
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{amssymb}
+\usepackage{wrapfig}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{Sweave}
+\usepackage{hyperref}
+\SweaveOpts{keep.source=TRUE}
+\bibliographystyle{plain}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareMathOperator*{\argmin}{arg~min}
+
+%%%%\newcommand{\Real}{\mathbb{R}} %real numbers
+%\newcommand{\y}{\boldsymbol{y}}
+\newcommand{\lu}{\boldsymbol{u}}
+%\newcommand{\Real}{I\!\!R}
+%\newcommand{\vz}{\vec 0}
+%\newcommand{\vo}{\vec 1}
+\newcommand{\ra}[1]{\renewcommand{\arraystretch}{#1}}
+\newcommand{\bphi}{\boldsymbol{\phi}}
+%\newcommand{\f}{\boldsymbol{f}}
+\newcommand{\fL}{\boldsymbol{f}_L}
+\newcommand{\fU}{\boldsymbol{f}_U}
+\newcommand{\h}{\boldsymbol{h}}
+%\newcommand{\hatf}{\widehat{\boldsymbol{f}}}
+%\newcommand{\lxi}{\boldsymbol{x}_i}
+%\newcommand{\lxj}{\boldsymbol{x}_j}
+\newcommand{\lx}{\boldsymbol{x}}
+\newcommand{\X}{\boldsymbol{X}}
+\newcommand{\D}{\boldsymbol{D}}
+\newcommand{\K}{\boldsymbol{K}}
+\newcommand{\St}{\boldsymbol{S}}
+\newcommand{\W}{\boldsymbol{W}}
+\newcommand{\Z}{\boldsymbol{Z}}
+\newcommand{\Zl}{\boldsymbol{Z_l}}
+\newcommand{\V}{\boldsymbol{V}}
+\newcommand{\bE}{\boldsymbol{E}}
+\newcommand{\G}{\boldsymbol{G}}
+%\newcommand{\B}{\boldsymbol{B}}
+\newcommand{\Pe}{\boldsymbol{P}}
+%\newcommand{\lxz}{\boldsymbol{x}_0}
+\newcommand{\Del}{\boldsymbol{\Delta}}
+\newcommand{\Nx}{\boldsymbol{N}_k(\lx)}
+\newcommand{\Nxi}{\boldsymbol{N}_k(\lxi)}
+\newcommand{\Nxj}{\boldsymbol{N}_k(\lxj)}
+\newcommand{\Nxz}{\boldsymbol{N}_k(\lxz)}
+\newcommand{\Jf}{\mathbb{J}\left(\f\right)}
+\newcommand{\Pyu}{\mathbb{P}\left(\yu\right)}
+\newcommand{\by}{\boldsymbol{Y}}
+%\newcommand{\yl}{\boldsymbol{Y}_L}
+%\newcommand{\yu}{\boldsymbol{Y}_U}
+%\newcommand{\yyu}{\boldsymbol{Y}\left(\yu\right)}
+%\newcommand{\xl}{\X_L}
+%\newcommand{\xu}{\X_U}
+\newcommand{\La}{\boldsymbol{L}}
+%\newcommand{\I}{\boldsymbol{I}}
+%\newcommand{\A}{\boldsymbol{A}}
+\newcommand{\sa}{\boldsymbol{a}}
+\newcommand{\g}{\boldsymbol{g}}
+%\newcommand{\Or}{\mathcal{O}}
+\newcommand{\va}{\boldsymbol{v}}
+%\newcommand{\zi}{\boldsymbol{z_{\langle i \rangle,i}}}
+%\newcommand{\z}{\boldsymbol{z}}
+\newcommand{\vk}{\boldsymbol{v_k}}
+\newcommand{\ka}{\boldsymbol{k}}
+\newcommand{\s}{\boldsymbol{s}}
+\newcommand{\m}{\boldsymbol{m}}
+\newcommand{\zzx}{\z_{\xset}}
+\newcommand{\zzi}{\z_{\xseti}}
+\newcommand{\zzito}{\z_{\xseti}^{(t+1)}}
+\newcommand{\zzit}{\z_{\xseti}^{(t)}}
+\newcommand{\xset}{\langle \lx\rangle}
+\newcommand{\xseti}{\langle \lxi\rangle}
+\newcommand{\btau}{\boldsymbol{\tau}_{\mathbb{S}}} 
+
+
+%\newcommand{\pkg}[1]{{\fontseries{b}\selectfont #1}}
+
+%\newcommand{\vo}{\vec 1}
+%\newcommand{\vz}{\vec 0}
+
+\def\ind#1{ {\mathcal{I}}_{ \{ {#1} \} } }
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+\newcommand{\Real}{\mathbb{R}} %real numbers
+
+\newcommand{\am}{\boldsymbol{A}}
+\newcommand{\zm}{\boldsymbol{0}}
+%\newcommand{\B}{\boldsymbol{B}}
+\newcommand{\sm}{\boldsymbol{S}}
+%\newcommand{\w}{\boldsymbol{W}}
+%\newcommand{\y}{\boldsymbol{Y}}
+%\newcommand{\yl}{\boldsymbol{Y}_L}
+%\newcommand{\yu}{\boldsymbol{Y}_U}
+%\newcommand{\hyu}{\boldsymbol{\widehat{Y}}_U}
+\newcommand{\yyu}{\boldsymbol{Y}\left(\yu\right)}
+\newcommand{\yz}{\boldsymbol{Y}\left(\vz\right)}
+\newcommand{\yzi}{\boldsymbol{Y}_i\left(\vz\right)}
+\newcommand{\yli}{\boldsymbol{Y}_{L_i}}
+\newcommand{\yyui}{\boldsymbol{Y}_i\left(\yu\right)}
+\newcommand{\lxi}{\boldsymbol{x}_i}
+\newcommand{\lxj}{\boldsymbol{x}_j}
+\newcommand{\lxz}{\boldsymbol{x}_0}
+\newcommand{\x}{\boldsymbol{X}}
+\newcommand{\xl}{\boldsymbol{X}_L}
+\newcommand{\xu}{\boldsymbol{X}_U}
+\newcommand{\xpart}{\left(\begin{array}{c}\xl\\ \xu\end{array}\right)}
+
+%\newcommand{\f}{\boldsymbol{f}}
+%\newcommand{\fl}{\boldsymbol{f}_L}
+%\newcommand{\fu}{\boldsymbol{f}_U}
+%\newcommand{\fi}{\boldsymbol{f}_{L_i}}
+\newcommand{\fii}{\boldsymbol{f}_{i}}
+
+
+\newcommand{\hatf}{\widehat{\boldsymbol{f}}}
+\newcommand{\hatfl}{\widehat{\boldsymbol{f}}_L}
+\newcommand{\hatfu}{\widehat{\boldsymbol{f}}_U}
+\newcommand{\hatfli}{\widehat{\boldsymbol{f}}_{L_i}}
+
+%\newcommand{\heta}{\widehat{\boldsymbol{\eta}}}
+\newcommand{\hetal}{\widehat{\boldsymbol{\eta}}_L}
+%\newcommand{\hetau}{\widehat{\boldsymbol{\eta}}_U}
+\newcommand{\hetai}{\widehat{\boldsymbol{\eta}_i}}
+
+\newcommand{\pmatx}{\boldsymbol{P}\left(\x\right)}
+\newcommand{\pmatxu}{\boldsymbol{P}\left(\xu\right)}
+\newcommand{\pmatxll}{{\pmatx}_{LL}}
+\newcommand{\pmatxlu}{{\pmatx}_{LU}}
+\newcommand{\pmatxul}{{\pmatx}_{UL}}
+\newcommand{\pmatxuu}{{\pmatx}_{UU}}
+\newcommand{\pmatxlls}{\pmatx_{LL}^\star}
+
+\newcommand{\delx}{\boldsymbol{\Delta}\left(\x\right)}
+\newcommand{\delxu}{\boldsymbol{\Delta}\left(\xu\right)}
+\newcommand{\delxuu}{\delx_{UU}}
+\newcommand{\delxlu}{\delx_{LU}}
+\newcommand{\ndelx}{\widetilde{\boldsymbol{\Delta}}\left(\x\right)}
+
+
+\newcommand{\mxg}{\boldsymbol{M}\left(\x\right)}
+\newcommand{\mxgt}{\boldsymbol{\tilde{M}}\left(\x\right)}
+
+\newcommand{\mx}{\boldsymbol{M}\left(\x\right)}
+\newcommand{\mxll}{{\mx}_{LL}}
+\newcommand{\mxllg}{{\mx}_{LL}}
+\newcommand{\mxlug}{{\mx}_{LU}}
+\newcommand{\mxulg}{{\mx}_{UL}}
+\newcommand{\mxuug}{{\mx}_{UU}}
+
+\newcommand{\dx}{\boldsymbol{D}\left(\x\right)}
+\newcommand{\sxll}{{\boldsymbol{S}}_{LL}}
+\newcommand{\sxllt}{{\boldsymbol{\tilde{S}}}_{LL}}
+
+\newcommand{\delxlls}{\delx_{LL}^\star}
+
+\newcommand{\wx}{\boldsymbol{W}\left(\x\right)}
+\newcommand{\wxu}{\boldsymbol{W}\left(\xu\right)}
+\newcommand{\wxll}{{\wx}_{LL}}
+\newcommand{\wxlu}{{\wx}_{LU}}
+\newcommand{\wxul}{{\wx}_{UL}}
+\newcommand{\wxuu}{{\wx}_{UU}}
+\newcommand{\wxlls}{{\wx}_{LL}^\star}
+
+\newcommand{\sll}{\boldsymbol{S}_{LL}}
+\newcommand{\cll}{\boldsymbol{C}_{LL}}
+\newcommand{\cllii}{\left(\cll\right)_{ii}}
+\newcommand{\cuu}{\boldsymbol{V}_{UU}}
+\newcommand{\cuuii}{\boldsymbol{V}_{UU_{ii}}}
+\newcommand{\cuug}{\boldsymbol{C}_{UU}}
+\newcommand{\cuugii}{\boldsymbol{C}_{UU_{ii}}}
+\newcommand{\cg}{\boldsymbol{C}}
+
+\newcommand{\bb}{\boldsymbol{\beta}}
+\newcommand{\hbb}{\widehat{\boldsymbol{\beta}}}
+%\newcommand{\bpsi}{\boldsymbol{\psi}}
+\newcommand{\cwi}{c_i}
+%\newcommand{\psd}{\succeq}
+%\newcommand{\pd}{\succ}
+\newcommand{\amat}{\boldsymbol{A}}
+\newcommand{\im}{\boldsymbol{I}}
+
+\newcommand{\bnu}{\boldsymbol{\nu}}
+\newcommand{\bnul}{\bnu_L}
+\newcommand{\bnuu}{\bnu_U}
+
+\newcommand{\delxul}{\delx_{UL}}
+\newcommand{\zvec}{\boldsymbol{z}}
+\newcommand{\zveci}{\boldsymbol{z}_i}
+\newcommand{\zz}{\boldsymbol{z}\left(\vz\right)}
+\newcommand{\dveci}{\boldsymbol{d}_i}
+\newcommand{\dvecij}{\boldsymbol{d}_{ij}}
+\newcommand{\dvecji}{\boldsymbol{d}_{ji}}
+
+\newtheorem{thm}{Theorem}
+%\newtheorem{prop}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{cor}{Corollary}
+\newtheorem{rmk}{Remark}
+\setlength{\arraycolsep}{0.0em}
+\newcommand{\psd}{\succeq}
+\newcommand{\pd}{\succ}
+
+\newcommand{\var}{\mathbb{V}\text{ar}}
+
+\newcommand{\Pmat}{\boldsymbol{P}}
+\newcommand{\Qmat}{\boldsymbol{Q}}
+\newcommand{\A}{\boldsymbol{A}}
+\newcommand{\B}{\boldsymbol{B}}
+\newcommand{\M}{\boldsymbol{M}}
+\newcommand{\T}{\boldsymbol{T}}
+\newcommand{\Vmat}{\boldsymbol{V}}
+
+
+\newcommand{\la}{\boldsymbol{a}}
+\newcommand{\ai}{\boldsymbol{a}^{(\ell)}}
+\newcommand{\Ai}{\boldsymbol{A}^{(\ell)}}
+
+\newcommand{\lxvi}{\boldsymbol{X}_i^{\left(\ell\right)}}
+\newcommand{\xvi}{\boldsymbol{X}^{\left(\ell\right)}}
+\newcommand{\xlvi}{\boldsymbol{X}_L^{\left(\ell\right)}}
+\newcommand{\xuvi}{\boldsymbol{X}_U^{\left(\ell\right)}}
+
+\newcommand{\z}{\boldsymbol{z}}
+\newcommand{\lzvi}{\boldsymbol{Z}_i^{\left(\ell\right)}}
+\newcommand{\lzvbi}{\boldsymbol{Z}_{i,\langle i \rangle}^{\left(\ell\right)}}
+\newcommand{\zvi}{\boldsymbol{Z}^{\left(\ell\right)}}
+\newcommand{\zlvi}{\boldsymbol{Z}_L^{\left(\ell\right)}}
+\newcommand{\zuvi}{\boldsymbol{Z}_U^{\left(\ell\right)}}
+%\DeclareMathOperator*{\armin}{arg\,min}
+\newcommand*\rfrac[2]{{}^{#1}\!/_{#2}}
+\newcommand{\aig}{a_{\gamma_i}}
+\newcommand{\aiz}{a_{0_i}}
+\newcommand{\haig}{\widehat{a}_{\gamma i}}
+\newcommand{\haiz}{\widehat{a}_{0i}}
+
+\newcommand{\I}{\boldsymbol{I}}
+\newcommand{\w}{\boldsymbol{W}}
+\newcommand{\wll}{\w_{LL}}
+\newcommand{\wuu}{\w_{UU}}
+\newcommand{\wlu}{\w_{LU}}
+\newcommand{\wul}{\w_{UL}}
+\newcommand{\yl}{\boldsymbol{Y}_L}
+\newcommand{\yu}{\boldsymbol{Y}_U}
+\newcommand{\hyu}{\widehat{\boldsymbol{Y}}_U}
+\newcommand{\hyug}{\hyu}%\widehat{\boldsymbol{Y}}_{U_\gamma}}
+
+\newcommand{\vvec}{\boldsymbol{v}}
+\newcommand{\qvec}{\boldsymbol{\pi}}
+\newcommand{\bet}{\boldsymbol{\beta}}
+\newcommand{\beti}{\boldsymbol{\beta}^{(\ell)}}
+\newcommand{\beto}{\boldsymbol{\beta}^{(1)}}
+\newcommand{\betq}{\boldsymbol{\beta}^{(q)}}
+
+\newcommand{\hbet}{\widehat{\boldsymbol{\beta}}}
+\newcommand{\hbeti}{\widehat{\boldsymbol{\beta}}^{(\ell)}}
+
+\newcommand{\hpsi}{\widehat{\boldsymbol{\psi}}}
+\newcommand{\bpsi}{\boldsymbol{\psi}}
+\newcommand{\bomega}{\boldsymbol{\omega}}
+\newcommand{\pgam}{p_\gamma}
+
+\newcommand{\wxvi}{\boldsymbol{W}^{\left(\ell\right)}}
+\newcommand{\wllxvi}{\boldsymbol{W}_{LL}^{\left(\ell\right)}}
+\newcommand{\wluxvi}{\boldsymbol{W}_{LU}^{\left(\ell\right)}}
+\newcommand{\wulxvi}{\boldsymbol{W}_{UL}^{\left(\ell\right)}}
+\newcommand{\wuuxvi}{\boldsymbol{W}_{UU}^{\left(\ell\right)}}
+
+\newcommand{\del}{\boldsymbol{\Delta}}
+\newcommand{\dellls}{\boldsymbol{\Delta}_{LL_0}^{\star}}
+\newcommand{\delllsg}{\boldsymbol{\Delta}_{LL}^{\star}}
+\newcommand{\delxvi}{\boldsymbol{\Delta}^{\left(\ell\right)}}
+\newcommand{\delllxvi}{\boldsymbol{\Delta}_{LL}^{\left(\ell\right)}}
+\newcommand{\delluxvi}{\boldsymbol{\Delta}_{LU}^{\left(\ell\right)}}
+\newcommand{\delulxvi}{\boldsymbol{\Delta}_{UL}^{\left(\ell\right)}}
+\newcommand{\deluuxvi}{\boldsymbol{\Delta}_{UU}^{\left(\ell\right)}}
+
+\newcommand{\rdelxvi}{\widetilde{\boldsymbol{\Delta}}^{\left(\ell\right)}}
+\newcommand{\jm}{\boldsymbol{J}}
+\newcommand{\f}{\boldsymbol{f}}
+\newcommand{\fl}{\boldsymbol{f}_L}
+\newcommand{\fu}{\boldsymbol{f}_U}
+\newcommand{\funci}{\boldsymbol{f}^{\left(\ell\right)}}
+\newcommand{\fli}{\boldsymbol{f}_L^{\left(\ell\right)}}
+\newcommand{\fui}{\boldsymbol{f}_U^{\left(\ell\right)}}
+\newcommand{\fo}{\boldsymbol{f}^{(1)}}
+\newcommand{\fq}{\boldsymbol{f}^{(q)}}
+\newcommand{\fqpo}{\boldsymbol{f}^{(q+1)}}
+\newcommand{\flo}{\boldsymbol{f}_L^{(1)}}
+\newcommand{\flq}{\boldsymbol{f}_L^{(q)}}
+\newcommand{\flqpo}{\boldsymbol{f}_L^{(q+1)}}
+
+\newcommand{\hfg}{\hf}%_{\gamma}}
+\newcommand{\hflg}{\hf_L}%{L_\gamma}}
+\newcommand{\hfug}{\hf_U}%{U_\gamma}}
+
+\newcommand{\hfzero}{\hf_{0}}
+\newcommand{\hflzero}{\hf_{0L}}
+\newcommand{\hfuzero}{\hf_{0U}}
+
+%\newcommand{\m}{\boldsymbol{g}}
+
+\newcommand{\boi}{\boldsymbol{o}_i}
+
+\newcommand{\hf}{\widehat{\f}}
+\newcommand{\hfl}{\hf_L}
+\newcommand{\hfu}{\hf_U}
+
+\newcommand{\cvec}{\widehat{\boldsymbol{c}}}
+\newcommand{\tcvec}{\widetilde{\boldsymbol{c}}}
+\newcommand{\Rmat}{\boldsymbol{R}}
+\newcommand{\btheta}{\boldsymbol{\theta}}
+
+\newcommand{\lwj}{\boldsymbol{w}_j}
+\newcommand{\lwjp}{{\boldsymbol{w}}_{j^{\prime}}}
+\newcommand{\ltwj}{\widetilde{\boldsymbol{w}}_j}
+\newcommand{\ltwjp}{\widetilde{\boldsymbol{w}}_{j^{\prime}}}
+
+\newcommand{\tp}{\widetilde{p}}
+\newcommand{\bsig}{\boldsymbol{\Sigma}}
+\newcommand{\tbsig}{\widetilde{\boldsymbol{\Sigma}}}
+
+\newcommand{\hfi}{\hf^{\left(\ell\right)}}
+\newcommand{\hfli}{\hf_L^{\left(\ell\right)}}
+\newcommand{\hfui}{\hf_U^{\left(\ell\right)}}
+\newcommand{\hfo}{\hf^{(1)}}
+\newcommand{\hfq}{\hf^{(q)}}
+\newcommand{\hfz}{\hf^{(0)}}
+
+\newcommand{\hflo}{\hf_L^{(1)}}
+\newcommand{\hflq}{\hf_L^{(q)}}
+\newcommand{\hflz}{\hf_L^{(0)}}
+
+\newcommand{\hfuo}{\hf_U^{(1)}}
+\newcommand{\hfuq}{\hf_U^{(q)}}
+\newcommand{\hfuz}{\hf_U^{(0)}}
+
+\newcommand{\feta}{\boldsymbol{\eta}}
+\newcommand{\fetau}{\boldsymbol{\eta}_U}
+\newcommand{\heta}{\widehat{\boldsymbol{\eta}}}
+\newcommand{\hetau}{\widehat{\boldsymbol{\eta}}_U}
+
+\newcommand{\sgn}[1]{\text{sign}\left(#1\right)}
+\newcommand{\normlt}[1]{\left\lVert#1\right\rVert_2^2}
+\newcommand{\normlo}[1]{\left\lVert#1\right\rVert_1^1}
+\newcommand{\diag}[1]{\mbox{diag}\left(#1\right)}
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{prop}{Proposition}
+\newtheorem{lem}{Lemma}
+\newtheorem{remark}{Remark}
+\newcommand{\vo}{\vec 1}
+\newcommand{\vz}{\vec 0}
+\newcommand{\vstack}[2]{\underset{#1}{\text{vec}}\left(#2\right)}
+\newcommand{\vdiag}[2]{\underset{#1}{\text{diag}}\left(#2\right)}
+\newcommand{\iid}{\stackrel{\mbox{\scalebox{0.7}{i.i.d.}}}{\sim}}
+\newcommand{\risk}{\mathcal{R}}
+\newcommand{\Or}[1]{\mathcal{O}\left(#1\right)}
+\newcommand{\y}{\boldsymbol{y}}
+
+\def\indd#1{ {\mathcal{I}}_{ \{ {#1} \} } }
+
+
+\newcommand{\Plainauthor}[1]{\def\@Plainauthor{#1}}
+\Plainauthor{\@author}
+
+\newcommand{\Plaintitle}[1]{\def\@Plaintitle{#1}}
+\newcommand{\Shorttitle}[1]{\def\@Shorttitle{#1}}
+
+  \Plaintitle{\@title}
+  \Shorttitle{\@title}
+%% almost as usual
+\parskip .2 cm
+\textheight 8.8 in \textwidth 6.3 in \voffset -.5 in \hoffset -.6 in
+
+\title{SemiSupervised: Scalable Semi-Supervised Routines for Real Data Problems}
+\author{Mark Vere Culp\\West Virginia University\\ \\ Kenneth Joseph Ryan\\ West Virginia University}
+%% for pretty printing and a nice hypersummary also set:
+\let\proglang=\textsf
+\newcommand{\pkg}[1]{{\fontseries{b}\selectfont #1}}
+
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{fontshape=sl}
+%\newenvironment{Schunk}{}{}
+
+
+\def\code#1{\texttt{#1}}
+%---------------------------------------------------------------------------------------------
+\begin{document}
+%---------------------------------------------------------------------------------------------
+\SweaveOpts{concordance=TRUE}
+\maketitle
+\thispagestyle{empty}
+\begin{abstract}
+Machine learning approaches optimize predictive performance by achieving a desirable compromise between bias and variance. Many supervised software packages produce a strong performing universal prediction rule independent of the testing data. In practice, one often wants to achieve the best possible prediction performance on a specific testing data set. For example, suppose the feature information in the testing data are a set of extrapolations away from the mean of the training data. In this case, more aggressive shrinking may be beneficial. One could view this contrast in terms of a sports metaphor. It is often better to prepare for your specific opponent (semi-supervised) than to prepare for a generic opponent (supervised). We present the \proglang{R} package \pkg{SemiSupervised}. This package efficiently implements a family of semi-supervised techniques and can directly incorporate the feature data corresponding to predictions of interest in training. The efficacy of this package on real arbitrary data follows from its use of recent advances including {\em safe} enhancements, anchor graph approximations, linear in $n$ training, optimized tuning via cross-validation, and other heuristics. 
+
+Note: Code to generate all tables is available in the document\_code subdirectory for this package.
+\end{abstract}
+{\bf Keywords:}{\em machine learning, fast parameter estimation, \proglang{R}}
+%---------------------------------------------------------------------------------------------
+\section[Introduction]{Introduction}
+%---------------------------------------------------------------------------------------------
+Semi-supervised learning addresses the topic of incorporating unlabeled (testing) data into a learning prediction framework \citep{chap}. Precisely, semi-supervised approaches differ from supervised in that they use information in both labeled (response is observed) and unlabeled (response is not observed) data to form better predictions than using the labeled cases only for training (i.e., supervised learning) \citep{kjell}. The literature is replete with semi-supervised learning techniques including greedy graph cut approaches \citep{graphcut}, logistic tree based approaches \citep{lmt}, manifold regularization \citep{manreg}, co-training \citep{nctrain}, harmonic function approaches \citep{jmlr1}, and covariate shift methods \citep{safe2,jmlr2}. The focus has been on understanding circumstances where these approaches are expected to work \citep{lafkern,jmlr1} or expected to fail \citep{nips, safe1}. 
+
+Much of this existing work is hindered by the following issues. Training often involves inverting large matrices with dimensions equal to the full data size, so techniques don't scale to big data problems. Tuning parameters are rarely estimated in an efficient way and often require direct user specification. Many techniques are for classification only and do not have a natural extension to regression. Techniques were typically defined or tuned to perform well on some ad hoc synthetic data sets, but performance tends to be much worse than even basic supervised techniques in noisy/realistic prediction problems. We speculate that these shortcomings tend to impede the practical use of semi-supervised learning, even though it is not too hard to motivate the practical advantage of using unlabeled data in training. 
+
+To address this, the proposed \pkg{SemiSupervised} package features a {\em safe} semi-supervised semi-parametric model (\code{s4pm}) and a fast anchor graph approximation to the \code{s4pm} referred to as \code{agraph}. These methods offer the following important characteristics: (i) safeguards to make the semi-supervised predictions competitive with (if not better than) state-of-the-art machine learning approaches on real data sets, (ii) fitting times on both small and large data sets that do not prevent widespread use and that scale as a linear function of the full data size, and (iii) internal on-the-fly estimation of all tuning parameters. The approach builds off of an established semi-supervised joint optimization criterion and generalizes several popular semi-supervised graph-based techniques. Our overall goal in this effort is to present a software package that implements high performing semi-supervised techniques that tend to perform as good or better than their supervised counterparts in linear time.
+
+\begin{figure}[t]
+\centering
+\resizebox{6 in}{3 in}{\hspace{0.5in}\includegraphics{fig1a.pdf}\includegraphics{fig1b.pdf}}
+\put(-307,12){\scalebox{0.75}{$x_1$}}
+\put(-410,110){\rotatebox{90}{\scalebox{0.756}{$x_2$}}}
+\put(-353,200){(a) Manifold example}
+\put(-346,40){\scalebox{0.65}{SVM}}
+\put(-280,175){\scalebox{0.65}{\code{s4pm}}}
+\put(-270,173){\vector(1,-1){15}}
+\put(-338,47){\vector(0,1){16}}
+%\put(-317,0){\scalebox{0.65}{(a)}}
+%
+\put(-100,12){\scalebox{0.75}{$x_1$}}
+\put(-200,110){\rotatebox{90}{\scalebox{0.75}{$x_2$}}}
+\put(-162,200){(b) Extrapolation example}
+%\put(-100,0){\scalebox{0.65}{(b)}}
+\put(-100,87){\vector(0,1){32}}
+\put(-100,87){\vector(2,-1){32}}
+\put(-160,57){\scalebox{0.75}{Labeled}}
+\put(-57,167){\scalebox{0.75}{Unlabeled}}
+\put(-59,165){\vector(-1,-1){16}}
+\put(-139,64){\vector(1,1){16}}
+\put(-96,110){\scalebox{0.75}{$\bnu_2$}}
+\put(-81,85){\scalebox{0.75}{$\bnu_1$}}
+\caption{(a) A $p=2$ classification example. The 6 labeled observations are plotted as big gray ($y=0$) versus black ($y=1$) dots. The additional 200 unlabeled observations uncover 2 crescent-shaped manifolds, which are only accounted for by the classification border. (b) The feature information for a $p=2$ regression example. While the continuous response is not displayed, white points are ``labeled" and gray points are ``unlabeled." The first principal component of the labeled data is close to $\bnu_1$, and $\bnu_2$ is in the direction of the unlabeled mean.}\label{fig:ideal}
+\end{figure}
+
+The principles behind using unlabeled data in training relates to the bias and variance trade-off of the prediction error rate \citep{jmlr2}. A judicious use of the unlabeled data can boost performance by reducing bias (variance) if there is a modest increase in variance (bias), but the component of the trade-off to be reduced depends on the structure of the full data as illustrated by Figure \ref{fig:ideal}. In circumstances such as Figure \ref{fig:ideal}(a), a high performing semi-supervised technique incorporates unlabeled data to detect manifolds within the data to exploit the trade-off by dramatically decreasing prediction bias while increasing variance \citep{jmlr1}. The feature data are represented by two moon manifolds, and the semi-supervised fit passes between them. The supervised fit is only able to train from the 6 labeled cases and misses the pattern. 
+
+In contrast, consider Figure \ref{fig:ideal}(b). It is now more desirable for a semi-supervised technique to shrink along unlabeled data extrapolation directions in an effort to dramatically decrease prediction variance at the expense of an increase in prediction bias \citep{jmlr2}. The goal would be to aggressively shrink in direction $\bnu_2$ while emphasizing prediction strength in direction $\bnu_1$. For example, suppose $\hbet$ is a linear semi-supervised estimator and that $\lxz$ is an unlabeled prediction vector. To decrease prediction variance, the semi-supervised prediction would ideally satisfy $\lxz^{\top}\hbet\approx a_1\bnu_1$. On the other hand, the performance of a supervised technique may suffer as a need to shrink aggressively along direction $\bnu_2$ would be missed because such techniques by definition do not use the unlabeled data in training.
+
+The semi-supervised concepts from Figure \ref{fig:ideal} were each developed to be {\em safe} in their application. That is, \code{s4pm} and \code{agraph} use the unlabeled data based on manifold in Figure \ref{fig:ideal}(a) and/or extrapolation in Figure \ref{fig:ideal}(b) requirements, and these safe techniques can also adjust back towards a supervised prediction rule to handle real noisy data problems when semi-supervised learning does not provide an advantage. The end-goal in-terms of performance is for the technique to work as good or better than its supervised counterpart on real data. This is not guaranteed to always happen (in a strict sense on a particular data set), but empirical results and theoretical work provide evidence in favor of this {\em safe} goal \citep{safe2,safe5}. Nearly, all existing semi-supervised approaches are not safe and provide no such considerations to our knowledge. Indeed, it is well-known that many semi-supervised techniques break-down in practice often performing much worse than even the simplest supervised approaches. In terms of implementation, the combination of incorporating unlabeled data in training and employing safety enhancements does indeed come at cost compared to supervised learning, but this package was carefully written to substantially decrease this cost without sacrificing performance.
+
+The entire fitting process of each technique was optimized using LAPACK/BLAS routines in a customized manner, and all tuning parameters are optimized with custom-designed $k$-fold cross-validation code. In cross-validation (CV), our goal is to determine the best tuning parameter choices for prediction of unlabeled cases. In practice, many optimal tuning parameter combinations tend to be on the boundary between a stable and unstable solution. This is difficult from a computational perspective, since many grid searches will encounter unstable values which force the underlying LAPACK routines to cycle through large matrices just to produce a terrible error rate. In other words, the vast majority of CV time is spent rejecting bad tuning parameter options as opposed to determining good ones. The LAPACK routines were carefully used to optimize error processing so as to reject bad choices as fast as possible. In this effort, special care was given to not only improve CV estimation but to also estimate all important internal parameters in real time. The \pkg{SemiSupervised} package integrates these optimized routines in \proglang{R} with a user-friendly front-end \proglang{S4} generic structure. 
+
+%---------------------------------------------------------------------------------------------
+\subsection[Semi-supervised software]{Semi-supervised software\label{sec:sw}}
+%---------------------------------------------------------------------------------------------
+There are some existing semi-supervised software packages in \proglang{R}. The \pkg{Rmixmod} \proglang{R} package provides supervised, semi-supervised, and unsupervised clustering for classification problems \citep{Rmixmod}. The \pkg{upclass} \proglang{R} package implements an EM style semi-supervised routine building off of model-based clustering \citep{upclass}. The \pkg{HCsnip} \proglang{R} package provides a semi-supervised hierarchical clustering method \citep{HCsnip}. The \pkg{spa} \proglang{R} package is the most similar to the proposed approach and has been redesigned to work better with the enhancements developed for the \pkg{SemiSupervised} package \citep{spa}. 
+
+Most semi-supervised routines are implemented as \proglang{MATLAB} scripts with fixed tuning settings to reproduce the technique being proposed as part of a publication. The closest to our work is the \pkg{SemiL} package which implements diffusion kernels and Gaussian harmonic fields primary in classification \citep{semiL}. Kernel-based classification software include \pkg{SGTlight}, \pkg{SVMlight}, and \pkg{SVMlin} \citep{sgt, svmlin}. The vast majority of other semi-supervised packages that we are aware of are primarily designed for specific text/web related applications, not large scale regression or classification applications.
+
+The proposed software distinguishes itself from these existing packages in some key ways. The main difference is that this package is designed for arbitrary regression or classification problems. As a result, the package is designed to perform all necessary CV for tuning parameter estimates in real time. In addition, the novel semi-parametric {\em safe} term provides additional robustness to real world data problems. Final contributions include anchor graph approximations, linear in $n$ training, an \proglang{S4}-generic front end, and some heuristics fined tuned for big data problems. 
+%-----------------------------------------------------------------------
+\section[Package metrics and highlights]{Package metrics and highlights\label{sec:highlights}}
+%---------------------------------------------------------------------------------------------
+Semi-supervised regression or classification on big or small data is made easy with the \pkg{SemiSupervised} package. This section highlights the performance of the \code{s4pm} and \code{agraph} functions on a wide range of real data sets. The benchmarks are listed in Table \ref{tab:datasets}. An internal CV approach was used to estimate all tuning parameters when calling \code{s4pm} or \code{agraph} at default settings throughout this section, so run-times reported include CV. The inner workings of the \code{s4pm} and \code{agraph} are deferred to Section \ref{sec:SemiSupervised}.
+\begin{table*}\centering
+\ra{1.3}
+\begin{tabular}{@{~}llrrlll@{~}}\toprule
+~&Data& $n$& $p$&\phantom{\quad}&Response&Reference\\ \midrule
+1.&Ethanol&589&1,037&&Ethanol&\cite{jmlr2}\\
+${2.}^{\!\!*}$&Breast&699&9&&Cancer&\cite{uci}\\
+${3.}^{\!\!*}$&Image&2,310&18&&Picture &\cite{uci}\\
+${4.}^{\!\!*}$&Sol&5,631&72&&Solubility&\cite{jmlr2}\\
+5.&Power&9,568&4&&Usage&\cite{uci}\\
+6.&Navy&11,933&16&&GT Decay&\cite{uci}\\
+7.&House&20,640&13&&ln(Value)&\cite{calhousing}\\
+8.&CASP&45,730&9&&Residue Size&\cite{uci}\\
+9.&Song&515,345&90&&Release Year&\cite{uci}\\
+10.&NYC&1,073,473&44&&Property Tax&\cite{nyc}\\
+\bottomrule
+\end{tabular}
+\caption{Data sets used for benchmarking. Asterisks indicate classification problems with a binary response. The other problems are regression with a continuous response.}\label{tab:datasets}
+\end{table*}
+
+Since \code{agraph} is an approximation to the \code{s4pm}, a comparison of these should bring into focus a familiar performance versus speed trade-off: (a) get the best performance by optimizing a computationally intense problem (e.g., the \code{s4pm}) versus (b) get (hopefully) comparable performance results faster by optimizing a problem requiring substantially less computation (e.g., the \code{agraph}). An additional comparison is also necessary to establish the {\em safe} component of this software. The natural supervised comparison to this end is the efficient \code{glmnet} \citep{glmnet}. The \code{glmnet} has 2 Lagrangian tuning parameters $(\lambda,\alpha)$ that were both optimized using CV for this comparison. 
+
+Let the index set $\{1,2,\ldots, n\}$ of all $n$ observations be partitioned into the labeled $L$ and unlabeled $U$ sets. For now, assume that an $n \times p$ model matrix $\x$ and a vector $\yl$ of $m=|L|$ responses are available in training, whereas the vector $\yu$ of $n-m=|U|$ responses is missing at the time of training and forecasting. 
+
+To simulate this commonly occurring scenario during benchmarking, the data were randomly partitioned into labeled and unlabeled sets such that $m=\lceil0.15*n\rceil\ind{n\le 1000}+200\ind{n> 1000}$, and the unlabeled responses were withheld from training. This experiment was repeated 100 times for each data set. To assist with comparisons in the regression problems, a scaled unlabeled root mean squared error metric
+\begin{eqnarray*}
+\text{sRMSE}_U=\sqrt{\frac{m}{n-m}\frac{\sum_{i\in U} (\by_i-\f_i)^2}{\sum_{i\in L} (\by_i-\bar{\by}_L)^2}}
+\end{eqnarray*}
+was used, where $\bar{\by}_L$ is the arithmetic sample mean of the labeled responses $\by_L$ and the length $n$ vector $\f$ is comprised of the predictions from some technique (supervised or semi-supervised). In classification, the performance metric reported is the unlabeled classification error. The results for data sets 1-10 from Table \ref{tab:datasets} are listed in Table \ref{tab:perf}. Interestingly, the results came out better than expected for the \code{agraph} with 7 out of 10 wins in comparison to the \code{s4pm}. However, it is important not to read too much into this with real data (as opposed to simulated data from a probabilistic model in a more tightly controlled simulation study). In any case, the performance of either semi-supervised approach was quite strong overall in terms of comparisons with the \code{glmnet}, justifying the {\em safe} semi-supervised component of the software. 
+
+\begin{table*}\centering
+\ra{1.3}
+\begin{tabular}{@{~}lrrrrrrrr@{~}}\toprule
+Data& $n$& $p$&\phantom{~}&\multicolumn{1}{c}{\code{s4pm}}&~&\multicolumn{1}{c}{\code{agraph}}&~&\multicolumn{1}{c}{\code{glmnet}}\\ \midrule
+Ethanol&589&1,037&~&0.563$~\pm~$0.032&~&0.573$~\pm~$0.030&~&{\bf 0.445}$~\pm~$0.034\\
+Breast&699&9&~&0.054$~\pm~$0.002&~&{\bf 0.033}$~\pm~$0.001&~&0.045$~\pm~$0.002\\
+Image&2,310&	18&&0.356$~\pm~$0.020&~&{\bf0.077}$~\pm~$0.005&~&0.102$~\pm~$0.003\\
+Sol&5,631&72&&0.378$~\pm~$0.002&~&{\bf 0.301}$~\pm~$0.004&~&0.306$~\pm~$0.004\\
+Power&9,568&4&&0.280$~\pm~$0.002&~&{\bf 0.277}$~\pm~$0.002&~&0.286$~\pm~$0.004\\
+Navy&11,933&16&&0.731$~\pm~$0.069&~&{\bf 0.118}$~\pm~$0.033&~&0.456$~\pm~$0.005\\
+House&20,640&8&&{\bf0.627}$~\pm~$0.008&~&0.641$~\pm~$0.009&~&0.656$~\pm~$0.011\\
+CASP&45,730&9&&{\bf 0.866}$~\pm~$0.007&~&0.873$~\pm~$0.007&~&0.895$~\pm~	$0.008\\
+Song&515,345	&90&&1.002$~\pm~$0.021&~&{\bf0.993}$~\pm~$0.020&~&1.009$~\pm~$0.021\\
+NYC&1,073,473&44&&7.465~$~\pm~$1.263&~&{\bf 6.926}$~\pm~$1.038&~&10.297$~\pm~$1.519\\
+\bottomrule
+\end{tabular}
+\caption{Performance results for the Table \ref{tab:datasets} benchmarks, i.e., average performance metric $\pm$ 2 standard errors.}\label{tab:perf}
+\end{table*}
+
+In terms of CPU time, the original techniques that this code is based off of involved cubic in $n$ inverses which would not be realistic for larger data sets. Much of our work in this software development was to reduce the additional computational burden of training with the unlabeled data; see Section \ref{sec:hueristics}. The $\log\text{-}\log$ plot of the Average Times are provided against $n$ in Figure \ref{fig:time} using the data set number from Table \ref{tab:datasets} as the plotting symbol. For either the \code{s4pm} or the \code{agraph}, the least-squares line of the regression examples is roughly $\log(\text{Time})=0.6\log(n)-3$, which indicates a slightly better than linear fit. It is noteworthy that the supervised \code{glmnet} was faster than the proposed approach especially on the larger data sets. This makes senses, since the supervised technique trains $\hbet$ using only the labeled data and then predicts the unlabeled case as $\lxz^{\top}\hbet$. In other words, it is always faster to ignore the unlabeled data than to use it in training. The use of semi-supervised learning is justified by potential performance improvements from incorporating this information in training.
+
+\begin{figure}[t]
+\centering
+\resizebox{6 in}{3 in}{\hspace{0.5in}\includegraphics{fig_time1.pdf}\includegraphics{fig_time2.pdf}}
+\put(-110,9){$\log(n)$}
+\put(-317,9){$\log(n)$}
+%\put(-210,100){\rotatebox{90}{$\log($Time$)$}}
+\put(-420,100){\rotatebox{90}{$\log(\text{Time})$}}
+\put(-110,200){\code{agraph}}
+\put(-317,200){\code{s4pm}}
+\caption{Plots of computation time in seconds versus $n$ on $\log\text{-}\log$ scales. The solid-black and dashed-red lines connect the outcomes for the regression and classification examples.}\label{fig:time}
+\end{figure}
+
+The proposed software uses underlying LAPACK routines which are optimized in different BLAS libraries. Multi-threaded libraries can be used to substantially improve the empirical speed of all matrix operations in practice. To demonstrate that the proposed software can take advantage of these enhancements, additional results are listed in Table \ref{tab:os}. These results demonstrate the substantial speed improvements due to using the freely available VecLib with 6 cores or the Microsoft Kernel Library MKL with 8-cores against the default Reference (Ref.) libraries in \proglang{R}. As expected, the \code{agraph} has a greater impact over the \code{s4pm}. Each was fit on a top-of-the-line machine available in the Department of Statistics at West Virginia University.
+
+
+\begin{table*}\centering
+\ra{1.3}
+\begin{tabular}{@{}crrrcrrcrrc@{}}\toprule
+&& \multicolumn{2}{c}{Mac OS X} & \phantom{abc}& \multicolumn{2}{c}{Linux Ubuntu} &
+\phantom{abc} & \multicolumn{3}{c}{Windows}\\ \cmidrule{3-4} \cmidrule{6-7} \cmidrule{9-11}
+&&Ref. & VecLib &~&Ref.&MKL&~&Ref.&MKL&\\ \midrule
+&\code{agraph}&34.44&15.39&&36.03&9.11&&54.70&15.64\\
+&\code{s4pm}&47.18&22.91&&25.34&13.79&&33.81&23.64\\ \bottomrule
+\end{tabular}
+\caption{CPU time in seconds to execute the CASP data set on different OS's using different BLAS libraries on each system. The median out of ten runs is reported.\label{tab:os}}
+\end{table*}
+
+A final benchmark metric for consideration is the effect as $m=|L|$ increases. Results in Table \ref{tab:bigm} demonstrate that the \code{agraph} approach is linear in $m$ as well, while the \code{s4pm} is cubic in $m$.  Performance is also provided as a function of labeled size indicating that the faster \code{agraph} does indeed perform slightly worse than the \code{s4pm}. 
+ 
+\begin{table*}[t]\centering
+\ra{1.3}
+\begin{tabular}{@{~}llrrrrrrl@{~}}\toprule
+~&\multicolumn{1}{r}{$m$:}&200&500&1,000&2,000&5,000&10,000&\\\midrule
+Time (sec.): &\code{agraph}&9.12&9.50&11.34&15.99&24.33&44.04&\\
+~&\code{s4pm}&13.45&18.51&29.92&73.34&431.0&1,829&\\
+&\\
+Performance:&\code{agraph}&0.871&0.834&0.816&0.804&0.787&0.776&\\
+~&\code{s4pm}  &0.860&0.823&0.793&0.773&0.731&0.700&\\
+\bottomrule
+\end{tabular}
+\caption{Labeled size $m$ in terms of CPU time in seconds and performance is listed for the Casp data. The median out of ten runs is reported.\label{tab:bigm}}
+\end{table*}
+
+%---------------------------------------------------------------------------------------------
+\section[The SemiSupervised package]{The \pkg{SemiSupervised} package\label{sec:SemiSupervised}}
+%---------------------------------------------------------------------------------------------
+
+In this Section, the focus is on the general structure of \pkg{SemiSupervised}. The \pkg{SemiSupervised} \proglang{R} package implements three different semi-supervised routines: \code{s4pm}, \code{agraph}, and \code{jtharm}. In general, these functions are different variations of the semi-supervised joint training optimization problem. To set this up, let $L$ and $U$ again partition the index set $\{1,\ldots,n\}$ for the $n$ observations into the sets of labeled and unlabeled observations. The technical setup requires that the $m=|L|$ labeled observations $(y_i,\lxi)$ for $i \in L$ are independent and identically distributed. An additional $n-m=|U|$ unlabeled observations $\lxi$ are also independent and identically distributed (and independent of the labeled data), but their responses $y_i$ for $i \in U$ are not available for training. The full data are represented by an $n\times p$ matrix $\X$ with row-wise partitions $\xl$ and $\xu$. It is important to note that the length $n$ response vector $\by$ partitions into the $m$ observed responses $\yl$ and $n-m$ \emph{latent} (or unobserved) variables $\yu$. Joint training 
+\begin{eqnarray}
+\min_{\bet,\f,\yu} L\left(\yyu,\f+\X\bet\right)+\lambda_1\f^{\top}\B\f+\lambda_2 \parallel\bet\parallel_2^2+\gamma\normlt{\yu}\label{eqn:jtloss}
+\end{eqnarray}
+provides a general framework for arriving at suitable semi-supervised predictions given a loss function $L\left(\cdot,\cdot\right)$, a tuning parameter vector $\left(\lambda_1,\lambda_2,\gamma\right)\ge0$, a stacked response vector $\yyu$ with $\yl$ on top of $\yu$, and a positive semi-definite penalty matrix $\B$. 
+
+Briefly, the \code{s4pm} implements the solution $\heta=\hf+\x\hbet$ to this optimization problem for 2 choices of $\B$: (i) the Laplacian matrix and (ii) the normalized Laplacian matrix. The \code{agraph} approximates $\heta\approx \Z\widehat{\gamma}+\x\hbet$ using a matrix $\Z$ that is constructed via an anchor graph penalty matrix. The \code{jtharm} optimizes (\ref{eqn:jtloss}) using a weighted loss and has no $\x\bet$ term (i.e., $\lambda_2=\infty$). The details for these techniques are discussed in Sections \ref{sec:functions} and \ref{sec:harm} with examples. 
+
+The $\x\hbet$ term in (\ref{eqn:jtloss}) provides the {\em safe} enhancement to the semi-supervised solution. In prior work, the connection between optimization (\ref{eqn:jtloss}) and several semi-supervised techniques proposed in the literature including regularized Laplacians \citep{belkin}, manifold regularization \citep{manreg}, label spreading \citep{zhou2004}, regularized anchor methods \citep{anchor,hash}, transductive SVM \citep{chap}, S3VM \citep{s3vm}, and $\psi$-learning \citep{s2cluster} was established \citep{jmlr1}. Most of these techniques are simplified versions of (\ref{eqn:jtloss}) usually with $\gamma=0$ and $\lambda_2=\infty$, i.e., $\hyu=\hfu$ and $\hbet=\vz$. Examples on how to fit these special cases using the \code{s4pm} are provided in Section \ref{sec:prox}. 
+%---------------------------------------------------------------------------------------------
+\subsection[S4 structure]{\proglang{S4} structure\label{sec:s4}}
+%---------------------------------------------------------------------------------------------
+The \pkg{SemiSupervised} utilizes \proglang{R}'s object model \proglang{S4} class structure which builds off the \pkg{methods} package. The virtual class {\em SemiSupervised} defines the base signature for a semi-supervised object in \proglang{R}. Every object in this class has the usual \code{dim}, \code{fit}, and \code{fitted} methods. In addition, new base methods for class {\em SemiSupervised} includes \code{type} (whether regression or classification), \code{xmatrix} (the scaled feature data used for training), \code{gmatrix} (graphical representation), \code{ymatrix} (the scaled response), and \code{measures} (the error information). All accessor and assignments in slots are accessed either through the access function or directly through the slot with the \code{@} operator.
+
+The diagram below represents instances of this virtual class which are different versions of optimization (\ref{eqn:jtloss}). The similar \code{spa} function in the \pkg{spa} package was also re-written as an instance of virtual class {\em SemiSupervised} (refer to Section \ref{sec:harm} for more on this connection). 
+\begin{figure}[h]
+\setlength{\unitlength}{0.10in} 
+\centering
+\begin{picture}(55,12) 
+\put(21,9){\fbox{\text{Virtual class: {\em SemiSupervised}}}}
+\put(0,1){\fbox{\text{Class: {\em s4pm}}}}
+\put(15,1){\fbox{\text{Class: {\em agraph}}}}
+\put(30,1){\fbox{\text{Class: {\em jtharm}}}}
+\put(45,1){\fbox{\text{Class: {\em spa}}}}
+\qbezier( 4.15974157473914 , 2.51225869909499 )( 17.175 , 5.53 )( 30.1902584252609 , 8.54774130090501 )
+\qbezier( 19.5087083554788 , 2.51491574458803 )( 24.85 , 5.53 )( 30.1912916445212 , 8.54508425541197 )
+\qbezier( 34.144526759731 , 2.51836920790503 )( 32.175 , 5.53 )( 30.205473240269 , 8.54163079209497 ) 
+\qbezier( 30.2095262822602 , 8.54695862756336 )( 30.526724137931 , 8.44568965517242 )( 30.8439219936018 , 8.34442068278147 )
+\qbezier( 32.1698711098464 , 7.92109655859784 )( 32.8137931034483 , 7.71551724137931 )( 33.4577150970501 , 7.50993792416078 )
+\qbezier( 34.7836642132947 , 7.08661379997715 )( 35.4275862068965 , 6.88103448275862 )( 36.0715082004984 , 6.67545516554009 )
+\qbezier( 37.397457316743 , 6.25213104135646 )( 38.0413793103448 , 6.04655172413793 )( 38.6853013039467 , 5.8409724069194 )
+\qbezier( 40.0112504201913 , 5.41764828273577 )( 40.6551724137931 , 5.21206896551724 )( 41.2990944073949 , 5.00648964829871 )
+\qbezier( 42.6250435236395 , 4.58316552411508 )( 43.2689655172414 , 4.37758620689655 )( 43.9128875108432 , 4.17200688967802 )
+\qbezier( 45.2388366270878 , 3.74868276549439 )( 45.8827586206897 , 3.54310344827586 )( 46.5266806142915 , 3.33752413105733 )
+\qbezier( 47.8526297305361 , 2.9142000068737 )( 48.4965517241379 , 2.70862068965517 )( 49.1404737177398 , 2.50304137243664 ) 
+\end{picture}%dash 'er up.
+\end{figure}
+
+Each class has a \code{standardGeneric} by the same name. The input methods for each class include \code{formula}, \code{NULL}, \code{matrix}, \code{vector}, and \code{data.frame}.  The \code{agraph} also allows for an \code{anchor} graph object to be inputted. All input methods call a default method (i.e., \code{s4pm.default}) which in-turn invokes low-level fit (i.e., \code{s4pm.fit}) and CV (i.e., \code{s4pm.cv}) routines. These low-level routines are not exported and require the \code{:::} scope operator for access in \proglang{R}. In addition, each routine offers a \code{show} method, and a \code{predict} method. This provides the standard base structures necessary to fit an instance of {\em SemiSupervised}. 
+
+%---------------------------------------------------------------------------------------------
+\section[Demonstration of semi-supervised estimators]{Demonstration of semi-supervised estimators\label{sec:functions}}
+%---------------------------------------------------------------------------------------------
+A demonstration of the safe semi-supervised parametric model and the anchor graph approximation are given in this section. Each technique optimizes special instances of (\ref{eqn:jtloss}). This demonstration involves a data set from the \pkg{caret} package \citep{caret}, so it is necessary to first install both packages with the \proglang{R} commands \code{install.packages("SemiSupervised")} and  \code{install.packages("caret")}. After loading the \pkg{SemiSupervised} package in an \proglang{R} session with the command \code{library("SemiSupervised")}, all the \proglang{R} code presented in this section is conveniently executed with the command \code{demo("SemiSupervised")}. This demonstration begins by loading and preprocessing the Blood Brain data \citep{caret} for semi-supervised learning with the \pkg{SemiSupervised} package. The performance metric $\text{sRMSE}_U$ for this type of regression problem with a continuous response is also defined.
+\begin{Schunk}
+\begin{Sinput}
+R> library("SemiSupervised")
+R> library("caret")
+\end{Sinput}
+\begin{Soutput}
+Loading required package: lattice
+Loading required package: ggplot2
+\end{Soutput}
+\begin{Sinput}
+R> data("BloodBrain")
+R> set.seed(100)
+R> n <- nrow(bbbDescr)
+R> L <- sample(1:n, ceiling(0.1 * n))
+R> U <- setdiff(1:n, L)
+R> y.fit <- rep(NA, n)
+R> y.fit[L] <- logBBB[L]
+R> msy <- sqrt(mean((logBBB[L] - mean(logBBB[L]))^2))
+R> sRMSEU <- function(f, y, msy = 1.0){ sqrt(mean((f - y)^2)) / msy }
+\end{Sinput}
+\end{Schunk}
+
+By default, the \pkg{SemiSupervised} package fits the {\em safe} semi-supervised technique (\ref{eqn:jtloss}) with the all-purpose \code{formula} call $y\sim.$, e.g., the details for constructing $\B$ from $\x$ are hidden. Adjustments to these settings are demonstrated in Sections \ref{sec:prox} and \ref{sec:agraph}, and some other possibilities are given in Sections \ref{sec:ograph} and \ref{sec:harm}. Also, the \proglang{R} help pages complement the Blood Brain regression example of Sections \ref{sec:SemiSupervised}-\ref{sec:agraph}  with a classification example involving a Sonar data set \citep{mlbench}. Such classification examples optimize (\ref{eqn:jtloss}) with a hybrid general loss function, $L\left(\yyu,\f+\X\bet\right)$, as the logistic loss function for the labeled cases and squared error for the unlabeled observations.
+
+%---------------------------------------------------------------------------------------------
+\subsection[s4pm: Regression with proximity graphs]{\code{s4pm}: Regression with proximity graphs}\label{sec:prox}
+%---------------------------------------------------------------------------------------------
+The details for how to choose the penalty matrix $\B$ for the \code{s4pm} are discussed next. A distance between observations or rows of $\X$ must be specified to begin constructing this penalty function. The \pkg{SemiSupervised} package implements both Cosine Distance (as default) and Euclidean Distance. The $n\times n$ distance matrix is a fully connected graph. To induce edge sparsity, a $k$-NN graph is fit, i.e., the number of closest points is specified. The default is $k=6$. The package converts dissimilarity to similarities using the local kernel $\W_{ij}=\exp\left(-\D_{ij}/h\right)$ where $\D_{ij}$ is a dissimilarity measure between $\lxi$ and $\lxj$. Let $\diag{\W\vo}$ denote the diagonal row sum matrix of $\W$. The penalty matrix $\B$ in optimization (\ref{eqn:jtloss}) is either the combinatorial Laplacian $\B=\diag{\W\vo}-\W$ or the normalized Laplacian $\B=\diag{\W\vo}^{-1/2}\left(\diag{\W\vo}-\W\right)\diag{\W\vo}^{-1/2}$. The package defaults to the normalized Laplacian.
+
+The default call to the \code{s4pm} solves optimization (\ref{eqn:jtloss}) directly with the normalized Laplacian used for $\B$ as shown below.
+\begin{Schunk}
+\begin{Sinput}
+R> safe.spread <- s4pm(y ~ ., data = data.frame(y = y.fit, bbbDescr))
+R> safe.spread
+\end{Sinput}
+\begin{Soutput}
+S4PM Fit with (n,|L|)=( 208 , 21 ) or  10 % labeled
+
+Performance Estimates:
+k-CV:  0.636  GCV:  0.036  DF:  12.572
+
+Fit Estimates:
+Graph Kernel h:  0.237  Lagrangians:  10   0.001  Safe-Lagrangian 10  
+\end{Soutput}
+\begin{Sinput}
+R> sRMSEU(fitted(safe.spread)[U], logBBB[U], msy)
+[1] 1.111641
+\end{Sinput}
+\end{Schunk}
+The $3$-fold CV estimates of $(h,\lambda_1,\lambda_2,\gamma)=(0.237,10.0,10.0,0.001)$ and their optimal CV value of $0.636$ are displayed. The Generalized Cross-Validation (GCV) and degrees of freedom performance estimates corresponding to this fit are printed out as well. 
+
+The function \code{SemiSupervised.control} gives the user the flexibility to switch to the combinatorial Laplacian matrix.
+\begin{Schunk}
+\begin{Sinput}
+R> ctrl<-SemiSupervised.control(normalize = FALSE)
+R> safe.lap<-s4pm(y ~ ., data = data.frame(y = y.fit, bbbDescr), 
+R+                control = ctrl)
+R> safe.lap
+\end{Sinput}
+\begin{Soutput}
+S4PM Fit with (n,|L|)=( 208 , 21 ) or  10 % labeled
+
+Performance Estimates:
+k-CV:  0.639  GCV:  0.036  DF:  14.102
+
+Fit Estimates:
+Graph Kernel h:  0.48  Lagrangians:  10   0.001  Safe-Lagrangian 10  
+\end{Soutput}
+\begin{Sinput}
+R> sRMSEU(fitted(safe.lap)[U], logBBB[U], msy)
+\end{Sinput}
+\begin{Soutput}
+[1] 1.10838
+\end{Soutput}
+\end{Schunk}
+Notice that the scaled unlabeled RMSE improves slightly with the combinatorial Laplacian in this particular example. In practice, allowing a large enough grid and scaling the data seems to trivialize the difference between the two graph operators.
+
+Next, 2 additional flexibilities of the function \code{s4pm} are demonstrated. (i) Its inputs can be adjusted to directly fit some popular semi-supervised special cases of (\ref{eqn:jtloss}). (ii) It can be used for variable selection where the unlabeled data influences the important variables to be selected. As an example of (i), consider the basic Regularized Laplacian approach that solves
+\begin{eqnarray}
+\min_{\f}\normlt{\yl-\fl}+\lambda_1\f^{\top}\left(\diag{\W\vo}-\W\right)\f.\label{eqn:rlap}
+\end{eqnarray}
+Optimization (\ref{eqn:rlap}) is a special case of optimization (\ref{eqn:jtloss}) with $\lambda_2=\infty$ and $\gamma=0$. In this case, the \code{formula} command must be modified to use a \emph{dissimilarity weighted graph} with the function \code{dG} in the \code{formula} call. In order to fit this, one should first scale the data according to the labeled means and variances using the \code{x.scaleL} function. Note that the \code{formula} $y\sim.$ used in the general {\em safe} case above to fit optimization (\ref{eqn:jtloss}) is equivalent to $y\sim . +$\code{dG}(\code{x.scaleL}$(.,L)$,metric=``cosine''$)$.  At any rate, the \code{s4pm} function in \pkg{SemiSupervised} solves (\ref{eqn:rlap}) with the following code.
+\begin{Schunk}
+\begin{Sinput}
+R> xscale <- x.scaleL(bbbDescr, L)
+R> rlap <- s4pm(y.fit ~ dG(xscale, metric = "cosine"), gam = 0.0,
+R+            control = ctrl)
+R> rlap
+\end{Sinput}
+\begin{Soutput}
+S4PM Fit with (n,|L|)=( 208 , 21 ) or  10 % labeled
+
+Performance Estimates:
+k-CV:  0.676  GCV:  0.038  DF:  0.171
+
+Fit Estimates:
+Graph Kernel h:  0.12  Lagrangians:  0.01   0  
+\end{Soutput}
+\begin{Sinput}
+R> sRMSEU(fitted(rlap)[U], logBBB[U], msy)
+\end{Sinput}
+\begin{Soutput}
+[1] 1.342094
+\end{Soutput}
+\end{Schunk}
+As before, the performance estimates list the optimal $3$-fold CV, corresponding GCV, and degrees of freedom. The tuning parameter estimates are $(h,\lambda_1,\gamma)=(0.12,0.01,0.0)$, and parameter $\lambda_2$ is not shown because the $\X\bet$ term from (\ref{eqn:jtloss}) is not fit in optimization (\ref{eqn:rlap}). 
+
+The diffusion kernel is another popular semi-supervised optimization alternative that can be fit with the \code{s4pm} by solving optimization
+ \begin{eqnarray*}
+\min_{\f}\normlt{\yl-\fl}+\lambda_1\f^{\top}\left(\diag{\W\vo}^{-1/2}\left(\diag{\W\vo}-\W\right)\diag{\W\vo}^{-1/2}\right)\f
+\end{eqnarray*}
+with the following \proglang{R} code.
+\begin{Schunk}
+\begin{Sinput}
+R> diffkern <- s4pm(y.fit ~ dG(xscale, metric = "cosine"), gam = 0.0)
+R> sRMSEU(fitted(diffkern)[U], logBBB[U], msy)
+\end{Sinput}
+\begin{Soutput}
+[1] 1.32251
+\end{Soutput}
+\end{Schunk}
+Lastly, label spreading is yet another alternative optimizing
+ \begin{eqnarray*}
+\min_{\f}\normlt{\by^*-\f}+\lambda_1\f^{\top}\left(\diag{\W\vo}^{-1/2}\left(\diag{\W\vo}-\W\right)\diag{\W\vo}^{-1/2}\right)\f,
+\end{eqnarray*}
+where $\by_L^*=\yl$ and $\by_U^*=\vz$, and is directly fit as follows.
+\begin{Schunk}
+\begin{Sinput}
+R> lspread <- s4pm(y.fit ~ dG(xscale, metric = "cosine"), gam = Inf)
+R> sRMSEU(fitted(lspread)[U], logBBB[U], msy)
+\end{Sinput}
+\begin{Soutput}
+[1] 1.414956
+\end{Soutput}
+\end{Schunk}
+
+In these Blood Brain examples, the joint optimization (\ref{eqn:jtloss}) with the safety term $\X\bet$ provides substantially improved performance over these special cases. The joint optimization (\ref{eqn:jtloss}), e.g., the default settings for function \code{s4pm}, is recommended for general usage.
+
+As mentioned previously, the \code{s4pm} can also perform variable selection. The following code shows how the \proglang{S4}-generic object functions underlying this software can be easily manipulated to determine important variables similar to \proglang{R}'s \code{drop1} style command \citep{progr}. This code takes about 13 seconds to run.
+\begin{Schunk}
+\begin{Sinput}
+R> drp1 <- (do.call("c", lapply(names(bbbDescr), function(i){
+R+   form <- as.formula(paste("y ~ . - ", i, sep = ""))
+R+   g1 <- s4pm(form,data = data.frame(y = y.fit, bbbDescr), 
+R+              hs = hparm(safe.spread), gams = gparm(safe.spread), 
+R+              lams = lparm(safe.spread))
+R+   measures(g1)[2]
+R+ })) / measures(safe.spread)[2] - 1) * 100
+R> attr(drp1, "names") <- names(bbbDescr)
+R> round(sort(drp1, decreasing = TRUE)[1:5], 4)
+\end{Sinput}
+\begin{Soutput}
+        fpsa3    peoe_vsa.5 dipole_moment       vsa_pol           pol 
+       2.9492        2.7100        2.5221        1.6540        1.3797 
+\end{Soutput}
+\end{Schunk}
+
+The top 5 variables using \%-Degradation in GCV are given, i.e., there is approximately a 3\% degradation in GCV performance due to the exclusion of variable `fpsa3'. This variable selection approach is unique compared to corresponding supervised alternatives since the bias/variance trade-off on the unlabeled data influences the selected variables.
+%---------------------------------------------------------------------------------------------
+\subsection[agraph: Regression with anchor graphs]{\code{agraph}: Regression with anchor graphs\label{sec:agraph}}
+%---------------------------------------------------------------------------------------------
+\newcommand{\lzi}{\boldsymbol{z}_i}
+\newcommand{\lz}{\boldsymbol{z}}
+\newcommand{\bgam}{\boldsymbol{\gamma}}
+The \code{agraph} function implements a semi-supervised technique using an anchor point method for graph construction. To start, a clustering algorithm is applied to $\x$. Let $\M$ denote the $a\times p$ set of cluster centers. The main idea is define a length $a$ vector $\lzi$ so that each data row $\lxi$ is close to $\lzi\M$. Specifically, $\lzi$ is the vector of  probability weights used to project $\lx_i$ onto the convex polytope consisting of the $s$ closest anchor points in $\M$ (refer below for examples). Repeating this for each row, yields a dimension reduced $n\times a$ matrix $\Z$. The Laplacian graph is then computed using adjacency $\W=\Z $diag$(\Z^{\top}\vo)^{-1}\Z^{\top}$ with $\Z\vo=\vo$. Optimization (\ref{eqn:jtloss}) is now used but with $\f=\Z\bgam$, i.e., $\f$ is restricted to the column-space of $\Z$. From this, the anchor graph implementation approximates optimization (\ref{eqn:jtloss}) with
+\begin{eqnarray*}
+\min_{\bet,\bgam, \yu} L\left(\yl,\Z_L\bgam+\X_L\bet\right)+\normlt{\yu-\Z_U\bgam-\X_U\bet}+\lambda_1\bgam^{\top}\B^{\star}\bgam+\lambda_2 \parallel\bet\parallel_2^2+\gamma\normlt{\yu}\label{eqn:agr}
+\end{eqnarray*}
+where $\B^{\star}=\Z^{\top}\Z-\Z^{\top}\Z $diag$(\Z^{\top}\vo)^{-1}\Z^{\top}\Z$ is the so-called \emph{reduced Laplacian} \citep{anchor}.
+
+
+\begin{wrapfigure}{r}{0.14\textwidth}
+\vspace{0.12in}
+\setlength{\unitlength}{0.10in} 
+\begin{picture}(8,5.0) 
+\put(0,.3){\line(1,0){8}}
+\put(0,6.2){\line(1,0){8}}
+\put(0,6.2){\line(0,-1){5.9}}
+\put(8,6.2){\line(0,-1){5.9}}
+
+\put(1,2){\circle{1}}\put(.75,1.75){\scalebox{0.6}{1}}
+\put(2,5){\circle{1}}\put(1.75,4.75){\scalebox{0.6}{2}}
+\put(3,3.6){\circle{1}}\put(2.75,3.35){\scalebox{0.6}{3}}
+\put(7,2){\circle{1}}\put(6.75,1.75){\scalebox{0.6}{4}}
+\put(2,3){\circle{0.5}}
+\qbezier( 1.15811388300842 , 2.47434164902526 )( 1.5 , 3.5 )( 1.84188611699158 , 4.52565835097474 ) 
+\qbezier( 2.42874646285627 , 4.74275212228624 )( 4.5 , 3.5 )( 6.57125353714373 , 2.25724787771376 ) 
+\qbezier( 1.5 , 2 )( 4 , 2 )( 6.5 , 2 )
+\end{picture}
+\end{wrapfigure}
+The \code{AnchorGraph} method in \pkg{SemiSupervised} is used in \proglang{R} to get $\Z$. The details for the actual projection of a vector $\lx$ onto the convex polytope of the centroids from a clustering algorithm using \code{AnchorGraph} are now provided. Consider the $p=2$ and $s=4$ example to the right. The data point $\lx=(2,3)$ denoted by an empty circle is contained in the convex polygon with anchors labeled 1-4 having Cartesian coordinates $(1,2),(2,5),(3,4),(7,2)$ and is fit in \proglang{R} below.
+\begin{Schunk}
+\begin{Sinput}
+R> ctrl.agr <- SemiSupervised.control(cn = 50)
+R> anchors <- rbind(c(1, 2), c(2, 5), c(3, 4), c(7, 2))
+R> z <- AnchorGraph(c(2, 3), anchor = anchors, control = ctrl.agr)$Z
+R> as.vector(z)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.53276500 0.19673762 0.20492595 0.06557143
+\end{Soutput}
+\begin{Sinput}
+R> as.vector(z %*% anchors)
+\end{Sinput}
+\begin{Soutput}
+[1] 2.000018 3.000065
+\end{Soutput}
+\end{Schunk}
+In other words, the vector $\lz$ is chosen as probability weights so that
+\begin{eqnarray*}
+\left(\begin{array}{c}2.000018\\ 3.000065\end{array}\right)~&=&~ 0.53276500\left(\begin{array}{c}1\\ 2\end{array}\right)+ 0.19673762\left(\begin{array}{c}2\\ 5\end{array}\right)+ 0.20492595\left(\begin{array}{c}3\\4\end{array}\right)+ 0.06557143\left(\begin{array}{c}7\\ 2\end{array}\right)\\
+~&\approx&~\left(\begin{array}{c}2\\ 3\end{array}\right)=\lx.
+\end{eqnarray*}
+The parameter $c_n$ controls the threshold for number of iterations internally in this algorithm, and larger values approximate the point better. In practice, close approximation to row $\lx$ is not all that critical in terms of performance, so this parameter is defaulted quite low to $c_n=4$. 
+
+\begin{wrapfigure}{r}{0.14\textwidth}
+\vspace{0.12in}
+\setlength{\unitlength}{0.10in} 
+\begin{picture}(8,5.0) 
+\put(0,.3){\line(1,0){8}}
+\put(0,6.2){\line(1,0){8}}
+\put(0,6.2){\line(0,-1){5.9}}
+\put(8,6.2){\line(0,-1){5.9}}
+
+\put(1,2){\circle{1}}\put(.75,1.75){\scalebox{0.6}{1}}
+\put(2,5){\circle{1}}\put(1.75,4.75){\scalebox{0.6}{2}}
+\put(3,3.6){\circle{1}}\put(2.75,3.35){\scalebox{0.6}{3}}
+\put(7,2){\circle{1}}\put(6.75,1.75){\scalebox{0.6}{4}}
+\put(2.5,1){\circle{0.5}}
+\put(2.5,2){\circle*{0.5}}
+\qbezier( 1.15811388300842 , 2.47434164902526 )( 1.5 , 3.5 )( 1.84188611699158 , 4.52565835097474 ) 
+\qbezier( 2.42874646285627 , 4.74275212228624 )( 4.5 , 3.5 )( 6.57125353714373 , 2.25724787771376 ) 
+\qbezier( 1.5 , 2 )( 4 , 2 )( 6.5 , 2 )
+\qbezier( 2.5 , 1.70710678118655 )( 2.5 , 1.5 )( 2.5 , 1.29289321881345 ) 
+%#R function to make lines as short as possible
+%f=function(x1,y1,x2,y2,r=.5){
+%	dx=x2-x1
+%	dy=y2-y1
+%	b=sqrt(r^2/(dx^2+dy^2))
+%	start=c(x1,y1)+b*c(dx,dy)
+%	end=c(x2,y2)-b*c(dx,dy)
+%	mid=(start+end)/2
+%	paste("\\qbezier(",start[1],",",start[2],")(",mid[1],",",mid[2],")(",end[1],",",end[2],")",seq="")
+%}
+%
+%
+%f(1,2,2,5)
+\end{picture}
+\end{wrapfigure}
+Perhaps more astounding in practice are circumstances where the observation $\lx$ is outside the convex polygon of the $s$ closest anchor points. Such a circumstance is depicted in the example to the right with the same anchors as above, but now $\lx=(2.5,1.0)$. In this case, a Local Anchor Embedding algorithm \citep{anchor} is implemented in \proglang{C++} to project the row back onto the convex polygon consisting of the $s$ closest anchor points in $\M$. The vector $\z$ is displayed in \proglang{R} below and defines the row probabilities necessary for this projection.
+\begin{Schunk}
+\begin{Sinput}
+R> z <- AnchorGraph(c(2.5, 1), anchor = anchors, control = ctrl.agr)$Z
+R > as.vector(z)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.7500015 0.0000000 0.0000000 0.2499985
+\end{Soutput}
+\end{Schunk}
+This example illustrates some important properties of the anchor graph approximation. First, the approximation $\lz\M\rightarrow(2.5,2)$ for $\lx$ will always miss the mark. Second, $\lz$ only involves anchors 1 and 4, but anchor 4 is the furthest away from $\lx$ while the much closer anchors 2 and 3 are ignored. The aggregate reliance on anchors in this manner tends to lead to more jagged classification borders or regression fits in practice than compared to the \code{s4pm} method. This jaggedness tends to be more pronounced as $p$ increases.
+
+While the above anchor graph fitting details are hidden from the user by default, the function \code{agraph} uses them below.
+\begin{Schunk}
+\begin{Sinput}
+R> safe.agraph <- agraph(y ~ ., data = data.frame(y = y.fit, bbbDescr))
+R> safe.agraph
+\end{Sinput}
+\begin{Soutput}
+Anchor Graph Laplacian (agraph) with (n,|L|)=( 208 , 21 ) or  10 % labeled
+
+Performance Estimates:
+k-CV:  0.653  GCV:  0.025  DF:  6.148
+
+Fit Estimates:
+Lagrangians:  1   0.001  Safe-Lagrangian 2  
+\end{Soutput}
+\begin{Sinput}
+R> sRMSEU(fitted(safe.agraph)[U], logBBB[U], msy)
+\end{Sinput}
+\begin{Soutput}
+[1] 1.105722
+\end{Soutput}
+\end{Schunk}
+
+The output produces estimates $(\lambda_1,\lambda_2,\gamma)=(1.0,2.0,0.001)$. Notice that there is no $h$ parameter which makes sense, since this method does not rely on a local kernel. The \code{agraph} approach performs slightly better than the \code{s4pm} as well. As with the \code{s4pm}, the following code shows that one can issue this command without the safety term $\X\bet$ using the \code{aG} function. 
+\begin{Schunk}
+\begin{Sinput}
+R> agr<-agraph(y.fit ~ aG(AnchorGraph(xscale)))
+R> sRMSEU(fitted(agr)[U], logBBB[U], msy)
+\end{Sinput}
+\begin{Soutput}
+[1] 1.298504
+\end{Soutput}
+\end{Schunk}
+%---------------------------------------------------------------------------------------------
+\subsection[Out-of-sample prediction]{Out-of-sample prediction\label{sec:oospred}}
+%---------------------------------------------------------------------------------------------
+The \pkg{SemiSupervised} package offers a prediction routine for either a single observation $\lxz$ or group of observations. The prediction rule for the \code{agraph} is trivial. Given vector $\lxz$ or a group of predictions, it just builds the \code{AnchorGraph} with this as input and and then linearly predicts using the trained $\hbet$ from optimization (\ref{eqn:agr}). However, unlike \code{agraph} the \code{s4pm} procedure does not lend itself to an obvious out-of-sample prediction rule, but out-of-sample prediction in its most basic sense is always possible with continuous feature data by interpolating the predictions $\heta$. To this end, recall that $\w$ is the Gram matrix of local kernel $K_h(\lxi,\lxj)$ and let ${\w}_{i0}=K_h(\lxi,\lxz)$ for $i\in L\cup U$. The interpolation function
+\begin{eqnarray*}
+\heta\left(\lxz\right)=\lxz^{\top}\hbb+\frac{\sum_{i}  a_i{\hatf}_i}{\sum_{i}a_i}\mbox{ with }a_i=\frac{\w_{i0}}{1-\w_{i0}}
+\end{eqnarray*}
+is implemented for out-of-sample predictions. 
+
+The following code randomly perturbs the first 5 observations of the Blood Brain data and then predicts them with the safe approaches above.
+\begin{Schunk}
+\begin{Sinput}
+R> set.seed(10)
+R> xnew <- as.data.frame(jitter(as.matrix(bbbDescr)[1:5, ]))
+R> round(predict(safe.lap, xnew = xnew), 3)
+\end{Sinput}
+\begin{Soutput}
+[1] -0.937  0.759 -3.934  2.438  1.129
+\end{Soutput}
+\begin{Sinput}
+R> round(predict(safe.spread, xnew = xnew), 3)
+\end{Sinput}
+\begin{Soutput}
+[1] -0.824  0.634 -3.552  2.303  1.058
+\end{Soutput}
+\begin{Sinput}
+R> round(predict(safe.agraph, xnew = xnew), 3)
+\end{Sinput}
+\begin{Soutput}
+[1] -1.450  1.195 -4.987  3.358  1.396
+\end{Soutput}
+\end{Schunk}
+Prediction with the other routines is more complicated because the graph must be constructed from the feature data in each case. The following code presents this case for the regularized Laplacian and the anchor graph only approaches above.
+
+\begin{Schunk}
+\begin{Sinput}
+R> sxnew <- scale(xnew,center = attr(xscale, "scaled:center"),
+R+                     scale = attr(xscale, "scaled:scale"))
+R> gnew <- kgraph.predict(cosineDist(sxnew, xscale))
+R> round(predict(rlap, gnew = gnew), 3)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.219 0.032 0.109 0.437 0.216
+\end{Soutput}
+\begin{Sinput}
+R> round(predict(agr,gnew = AnchorGraph(sxnew, fit.g = gmatrix(agr))), 3)
+\end{Sinput}
+\begin{Soutput}
+[1]  0.007 -0.116  0.075  0.553  0.077
+\end{Soutput}
+\end{Schunk}
+In practice, the safe versions tend to out-perform the non-safe versions on real data and the above stability improvement of these methods is expected.
+
+%---------------------------------------------------------------------------------------------
+\subsection[Observed graph example]{Observed graph example\label{sec:ograph}}
+%---------------------------------------------------------------------------------------------
+\begin{wrapfigure}{r}{0.2\textwidth}
+\vspace{0.2in}
+\hspace{-0.2in}
+\setlength{\unitlength}{0.14in} 
+\begin{picture}(8,5.0) 
+\put(1,0){\line(1,0){8}}
+\put(1,7){\line(1,0){8}}
+\put(1,0){\line(0,1){7}}
+\put(9,0){\line(0,1){7}}
+%
+\put(2,4){\circle{1}}\put(1.78,3.82){\scalebox{0.7}{a}}
+\put(4,4){\circle{1}}\put(3.78,3.78){\scalebox{0.7}{b}}
+\put(6,2){\circle{1}}\put(5.78,1.78){\scalebox{0.7}{?}}
+\put(6,6){\circle{1}}\put(5.78,5.78){\scalebox{0.7}{?}}
+\put(8,2){\circle{1}}\put(7.78,1.78){\scalebox{0.7}{b}}
+\put(8,6){\circle{1}}\put(7.78,5.82){\scalebox{0.7}{a}}
+\qbezier( 2.5 , 4 )( 3 , 4 )( 3.5 , 4 )
+\qbezier( 5.64644660940673 , 2.35355339059327 )( 5 , 3 )( 4.35355339059327 , 3.64644660940673 )
+\qbezier( 5.64644660940673 , 5.64644660940673 )( 5 , 5 )( 4.35355339059327 , 4.35355339059327 )
+\qbezier( 6.5 , 6 )( 7 , 6 )( 7.5 , 6 )
+\qbezier( 6.5 , 2 )( 7 , 2 )( 7.5 , 2 )
+\end{picture}
+\end{wrapfigure}
+Some real data examples involve an \emph{observed graph} that was not computed from some data matrix $\x$. Such examples can occur in classification or regression and include protein interaction networks \citep{prot}, terrorist networks \citep{text}, and shopping networks \citep{snapnets}. In this case, $\W$ is an $n\times n$ adjacency matrix defined on both the labeled and unlabeled cases. Optimization (\ref{eqn:jtloss}) is fit with $\bb=\vz$ and $\B$ as either the Laplacian or normalized Laplacian. The \pkg{SemiSupervised} package provides an internal \code{formula} function term \code{sG} for handling such an observed \emph{similarity graph} adjacency matrix as input. Consider the observed graph to the right. The objective is to classify the nodes of the graph as ``a" or ``b." There are two unlabeled observations marked by ``?.'' The following code fits this observed graph in \proglang{R} with the \code{s4pm}. 
+\begin{Schunk}
+\begin{Sinput}
+R> onePos <- list(1:2, 1:4, c(2:3, 6), c(2, 4, 5), c(4, 5), c(3, 6))
+R> (W <- do.call("rbind", lapply(onePos, 
+R+                     function(i){v = rep(0, 6); v[i] = 1; v})))
+\end{Sinput}
+\begin{Soutput}
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    1    1    0    0    0    0
+[2,]    1    1    1    1    0    0
+[3,]    0    1    1    0    0    1
+[4,]    0    1    0    1    1    0
+[5,]    0    0    0    1    1    0
+[6,]    0    0    1    0    0    1
+\end{Soutput}
+\begin{Sinput}
+R> y <- as.factor(c("a", "b", NA, NA, "a", "b"))
+R> graph.ex <- s4pm(y ~ sG(W))
+R> graph.ex
+\end{Sinput}
+\begin{Soutput}
+S4PM Fit with (n,|L|)=( 6 , 4 ) or  67 % labeled
+
+Performance Estimates:
+k-CV:  0  GCV:  0.002  DF:  0
+
+Fit Estimates:
+Lagrangians:  0.01   0  
+\end{Soutput}
+\end{Schunk}
+
+In this type of observed similarity graph example, there is no feature data matrix $\x$ or kernel function, so the estimated Lagrangian parameters are $(\lambda_1,\gamma_1)=(0.01,0.0)$. The fit is saturated and optimal in terms of CV. The following code outputs the node predictions and their corresponding probabilities.
+\begin{Schunk}
+\begin{Sinput}
+R> fitted(graph.ex)
+\end{Sinput}
+\begin{Soutput}
+[1] a b b a a b
+Levels: a b
+\end{Soutput}
+\begin{Sinput}
+R> round(fitted(graph.ex, type = "prob"), 2)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.12 0.88 0.90 0.40 0.11 0.89
+\end{Soutput}
+\end{Schunk}
+The returned probability estimates of $P\left(\y=\text{``b''}|\W\right)$ are consistent with what one might expect given the location of the missing cases on the observed graph. 
+
+In some cases, $\X$ data from a different view is available in conjunction with an observed similarity graph $\w$. Possibly in the protein example mentioned earlier, $\w$ is an observed similarity graph of protein interactions where specifically the nodes of the graph are $n$ individual proteins. In addition, each protein could also have an independent observation vector forming an $n \times p$ chemistry $\X$ data view. When such data $\w$ and $\x$ arise from 2 sources (and hence $\x$ is not used to compute $\w$), the function \code{s4pm} can still easily accommodate this type of data analysis as well.
+%---------------------------------------------------------------------------------------------
+\subsection[Package heuristics for big data]{Package heuristics for big data \label{sec:hueristics}}
+%---------------------------------------------------------------------------------------------
+
+Much work on computational efficiency was done to fit the semi-supervised technique quickly in memory. Since this approach is based on symmetric matrices, a Cholesky decomposition and efficient storage of matrices in conjunction with optimized LAPACK/ATLAS C-routines boosted speed substantially. An even larger speedup was due to the following, {\em Stagewise Cross Validation} (SCV) scheme. For the \code{s4pm}, adjacencies in the graph 
+\begin{equation}\label{eqn:graph}
+\w_{LL}+\B_{LU}\B_{UU}^{-1}\B_{UL}
+\end{equation}
+on $L$ were computed to quantify labeled-to-labeled connectives through labeled and unlabeled networks in the larger graph $\w$ on $L\cup U$ \citep{jmlr1} with $\B$ as either the Laplacian or normalized Laplacian. Four parameters $h,\lambda_1,\lambda_2,\gamma$ were then estimated with 3-fold CV from graph (\ref{eqn:graph}) and data $\xl$. (While $\xl$ played the role of $\x$ during the fitting of a given fold, the responses in the other 2 folds were omitted and played the role of $\yu$.) Lastly, parameter $\gamma$ was re-estimated with respect to the full graph $\w$ with fixed, optimal values for $h, \lambda_1,\lambda_2$ to stabilize the predictions. The \code{agraph} uses a very similar adjustment for stage-wise cross-validation where $\lambda_1,\lambda_2,\gamma$ are estimated on data $\left(\Z_L,\xl\right)$ while the semi-supervised parameter $\gamma$ was then reestimated on $\left(\Z,\x\right)$ with the other parameters fixed. The {\em cv.type=`scv'} control parameter performs SCV by default. 
+
+For large data sets, the semi-supervised method is adjusted to use anchor points by default. In this adjustment, the $k$-means algorithm is run to obtain $a$ centroids (anchors). Optimization (\ref{eqn:jtloss}) is then recast as follows. All unlabeled cases are treated as the anchor points. This is automated through the control parameters {\em U.as.anchor} and {\em U.as.anchor.thresh}. Specifically, if the data set has $n>U.as.anchor.thresh$ and {\em U.as.anchor=TRUE} then this substantial time saving is employed for any model fit by the \pkg{SemiSupervised} package. Note $U.as.anchor.thresh$ is the number of centroids in $k$-means and defaults to 600.  During development, we exhaustively tested using the anchor points as unlabeled cases versus using the unlabeled data directly and found no appreciable degradation in performance. 
+
+%---------------------------------------------------------------------------------------------
+\section[Harmonic functions and the spa package]{Harmonic functions and the \pkg{spa} package\label{sec:harm}}
+%---------------------------------------------------------------------------------------------
+Harmonic functions in semi-supervised learning have a long history in this up and coming field. Let $\St=$diag$(\W\vo)^{-1}\W$. A function is harmonic if it satisfies the averaging property
+\begin{eqnarray*}
+\fu=\left(\im-\St_{UU}\right)^{-1}\St_{UL}\fl.
+\end{eqnarray*} 
+It is now understood that optimization (\ref{eqn:jtloss}) with $\gamma=0$ and $\B$ as the combinatorial Laplacian results in a harmonic function approach independent of the loss function \citep{jmlr1}. This work also defined the \emph{joint harmonic function}
+\begin{eqnarray}
+\min_{\f,\yu} \left(\by-\f\right)^{\top}\W\left(\by-\f\right)+\lambda\f^{\top}\left(\text{diag}\left(\W\vo\right)-\W\right)\f+\gamma\normlt{\yu},\label{eqn:jtharm}
+\end{eqnarray}
+which is a harmonic function when $\gamma=0$. Non-zero $\gamma$ does not result in a harmonic function, but does often improve performance and stabilizes the numerical analysis. Interestingly, if $\W$ is generated from a local kernel function with $\lambda=1$, then the solution to optimization (\ref{eqn:jtharm}) converges to a shrunken supervised local kernel function as $\gamma\rightarrow\infty$. Specifically, it was proven that in classification the class labels are exactly equivalent to the supervised class assignments for kernel regression. Modifying $\lambda$ has a minor effect on this convergence result. This is a safety feature since a supervised technique results as a special case, but this connection only occurs in classification problems. In our experience, solutions to (\ref{eqn:jtharm}) tend to perform poorly in regression problems. 
+
+The \pkg{SemiSupervised} package fits the joint harmonic function approach using its \code{jtharm} function. The observed graph from Section \ref{sec:ograph} is now used  to fit this technique with the \proglang{R} code below.
+\begin{Schunk}
+\begin{Sinput}
+R> safe.jtharm <- jtharm(y ~ sG(W))
+R> safe.jtharm
+\end{Sinput}
+\begin{Soutput}
+Joint Harmonic Fit with (n,|L|)=( 6 , 4 ) or  67 % labeled
+
+Performance Estimates:
+k-CV:  0  GCV:  7.589  DF:  0.824
+
+Fit Estimates:
+Lagrangian:  0.01     Safe-Lagrangian:  0.001  
+\end{Soutput}
+\end{Schunk}
+The Lagrangian parameter vector $(\lambda,\gamma)=(0.01,0.001)$ was estimated for this joint harmonic function approach.
+
+Another approach to fit harmonic functions was the heuristic sequential predictions algorithm \citep{spa}. This algorithm simultaneously fits a function over the nodes of a graph and a linear term $\X\bet$ where specifically the node on the graph corresponds to a row in the $\X$ data. In some cases, the graph can be constructed from the feature data, and a {\em safe} version would be possible to fit. The \pkg{spa} package was recently rewritten to inherit the S4-generic class structure and \code{formula} interface of the \pkg{SemiSupervised} package. In addition, the CV and internal fitting was also recently rewritten in \proglang{C++}, so this package is quite a bit faster than its original version. The following code gives the fit from \code{spa} to the Blood Brain data.
+\begin{Schunk}
+\begin{Sinput}
+R> library("spa")
+R> safe.spa <- spa(y ~ ., data = data.frame(y = y.fit, bbbDescr))
+R> sRMSEU(fitted(safe.spa)[U], logBBB[U], msy)
+\end{Sinput}
+\begin{Soutput}
+[1] 1.220487
+\end{Soutput}
+\end{Schunk}
+The performance is slightly worse than the \code{s4pm}, but is still competitive. The technical differences between the original \pkg{spa} version 1.0 and the updated \pkg{spa} version 3.0 are described in its vignette available in version 3.0.
+
+%---------------------------------------------------------------------------------------------
+\section{Conclusions}
+%---------------------------------------------------------------------------------------------
+The \pkg{SemiSupervised} package was presented for semi-supervised machine learning problems. The package was noted to scale linearly in $n$. In this capacity, it is important to draw a distinction between scaling issues associated with labeled (training) size $m$ and the full data size $n$. Most machine learning techniques do not scale well with $m$, but have real promise for scaling with $n$. For example, take supervised learning; prediction of $n$ observations is often trivial post training and is rarely discussed as a computational challenge. Semi-supervised learning is at a disadvantage in terms of time complexity because many techniques, especially the popular and high performing graph-based techniques, are cubic in $n$ due to the required inversion of $n \times n$ matrices. The need for linear techniques has led to the recent work on anchor point methods together with the use of linear approximations to non-parametric semi-supervised techniques \citep{anchor}. The \pkg{SemiSupervised} package builds on this work. 
+
+To summarize the important contributions of this work, we list the internal steps taken by the function \code{agraph} and simply note that they are indeed linear in $n$.
+\begin{enumerate}
+
+\item {\bf Clustering step:} A clustering algorithm is applied to all $n$ observations to produce $a$ anchor points (i.e., centroids). The algorithm defaults to $k$-means clustering which has order $npa$ with $a=600$ by default.
+
+\item {\bf Graph construction step:} A \emph{local anchor embedding gradient decent algorithm} is applied to the full $n$ observations and $a$ anchor points to get $\Z$. Upon completion, the graph is represented by an $n\times n$ adjacency matrix $\W$, but this is never actually computed thus circumventing a quadratic in $n$ step (i.e., just compute $\B^\star$ directly from $\Z$ in the anchor graph optimization of Section \ref{sec:agraph}).
+
+\item {\bf Fitting step:} The \code{agraph} function is applied to compute a vector of linear regression coefficient estimates $\hbet$,   but this only requires the inverse of an $(a+p)\times(a+p)$ matrix. By fitting anchor points as unlabeled cases as opposed to the unlabeled cases directly, this step is constant as $n$ increases. 
+
+\item {\bf Prediction step:} The $n$ predictions are produced linearly using $\hbet$.
+
+\end{enumerate}
+The \code{agraph} is the linear approximation to the \code{s4pm}. Using this general algorithm and adapting the anchor points to the \code{s4pm} without approximating the non-parametric fit dramatically improves the scalability of this method. However, it is still not as fast as the \code{agraph}, but theoretically should slightly out-preform the \code{agraph} method in practice. 
+
+The summary above also exposes a significant shortcoming of the  \pkg{SemiSupervised} package and the work in semi-supervised learning in general. As $p$ increases, these techniques have a terrible time scaling up. The need to address large $p$ problems is, to our knowledge, entirely open in this field and is worthy of future study. This is not only an issue from a computational perspective but also from a theoretical perspective, e.g., it is not clear what effect allowing the unlabeled data to influence variable selection will have on variable selection in practice. In Section \ref{sec:prox}, we demonstrated that this is possible with the  \pkg{SemiSupervised} package, but this is the only result that we are aware of that even considers this issue. Understanding this effect is an important practical problem that presents a fruitful future study.
+
+In addition to having linear in $n$ time complexity, the \pkg{SemiSupervised} package also offers internal CV routines and underlying fitting in \proglang{C++}, \proglang{S4} generic consistency in \proglang{R}, and several practical heuristics to make this work on real arbitrary data. These advances provide an easy-to-use tool for real data problems. 
+\section*{Acknowledgments}
+
+The authors thank Prithish Banerjee and Michael Morehead for their help with this package. The work of Mark Vere Culp was supported in part by the NSF CAREER/DMS-1255045 grant. The opinions and views expressed in this paper are those of the authors and do not reflect the opinions or views at the NSF.
+
+
+%---------------------------------------------------------------------------------------------
+\bibliography{SemiSupervised}
+%---------------------------------------------------------------------------------------------
+\end{document}
+%---------------------------------------------------------------------------------------------
